@@ -23,7 +23,7 @@ behavior BidReceiverBehaviour {
 	var isAuctionOpened : boolean
 	
 	on Initialize {
-		isAuctionOpened = false
+		isAuctionOpened = true
 	}
 
 	on StartAuction {
@@ -35,7 +35,6 @@ behavior BidReceiverBehaviour {
 	on Bid [isAuctionOpened == true] {
 		
 		synchronized (this) {
-			
 			val agentId = occurrence.source.UUID
 			val bidValue = occurrence.value
 			this.auctionSpace.verifyBid(agentId, bidValue)

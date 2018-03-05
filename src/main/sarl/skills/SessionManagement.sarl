@@ -48,6 +48,7 @@ skill SessionManagementSkill implements SessionManagement {
 	private def taskFinishAuctionSetup() {
 
 		val task = task("close_auction_task")
+		
 		task.in(1000) [
 			this.stopAuction
 			info("Task fired")

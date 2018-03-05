@@ -61,17 +61,14 @@ behavior NormalBidderBehavior {
 	}
 	
 	on AuctionWinner {
-		
-		synchronized (this) {
-			val myIdStr = this.ID.toString
-			val winnerStr = occurrence.winnerName
-			val prize = occurrence.prod
 
-			if (myIdStr.equals(winnerStr)) {
-				info("I won " + prize.name)
-			}
+		val myIdStr = this.ID.toString
+		val winnerStr = occurrence.winnerName
+		val prize = occurrence.prod
+
+		if (myIdStr.equals(winnerStr)) {
+			info("I won " + prize.name)
 		}
-	
 	}
 	
 	def configure(eventSpace:OpenEventSpace) {

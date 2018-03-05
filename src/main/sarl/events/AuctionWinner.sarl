@@ -1,0 +1,21 @@
+/** 
+ * 
+ */
+package events
+
+import objects.Product
+
+/** 
+ * @author martin
+ * 
+ */
+event AuctionWinner {
+
+	var prod : Product
+	var winnerName : String
+
+	new (prod : Product, winnerName : String) {
+		this.prod = prod
+		this.winnerName = winnerName
+	}
+}

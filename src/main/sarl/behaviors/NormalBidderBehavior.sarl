@@ -1,0 +1,78 @@
+/** 
+ * 
+ */
+package behaviors
+
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import events.BidBaseChanged
+import io.sarl.util.OpenEventSpace
+import java.util.Random
+import events.Bid
+import events.StartAuction
+import events.AuctionWinner
+import io.sarl.core.Lifecycle
+
+/** 
+ * @author martin
+ * 
+ */
+behavior NormalBidderBehavior {
+	uses Logging
+	uses Lifecycle
+	
+	var eventSpace : OpenEventSpace
+	
+	on Initialize {
+		// Event trigger before the behavior begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("The behavior was started.")
+	}
+
+	on Destroy {
+		// Event trigger when the behavior is destroyed from the system.
+		// You should put all the resource releasing statements in this block of code.
+		info("The behavior was stopped.")
+	}
+
+	on StartAuction {
+		val bidBase = occurrence.initialBid
+		this.performBidOffer(bidBase)
+	}
+	
+	on BidBaseChanged {
+		val bidBase = occurrence.value;
+		this.performBidOffer(bidBase)
+	}
+	
+	on AuctionWinner {
+		
+		val myIdStr   = this.ID.toString
+		val winnerStr = occurrence.winnerName
+		val prize     = occurrence.prod
+		
+		if (myIdStr.equals(winnerStr)) {
+			info("I won " + prize.name)
+		}
+		
+		killMe
+	}
+	
+	def configure(eventSpace:OpenEventSpace) {
+		this.eventSpace = eventSpace
+	}
+	
+	private def performBidOffer(bidBase : double) {
+		
+		var maxPercentOffer = bidBase * 0.2
+		val random = new Random
+		var randomOffer = random.nextLong % maxPercentOffer
+		val bidOffer = bidBase + randomOffer
+
+		val bidOfferEvent = new Bid(bidOffer);
+		this.eventSpace.emit(this.ID, bidOfferEvent)
+		
+		info("agent " + this.ID + " makes an offer of " + bidOffer)
+	}
+}

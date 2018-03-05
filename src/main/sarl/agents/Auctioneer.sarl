@@ -1,0 +1,109 @@
+package agents
+/** 
+ * 
+ */
+
+import behaviors.BidReceiverBehaviour
+import io.sarl.core.Behaviors
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.util.OpenEventSpace
+import io.sarl.util.OpenEventSpaceSpecification
+import java.util.UUID
+import objects.Product
+import skills.SessionManagement
+import skills.SessionManagementSkill
+import spaces.AuctionSpace
+import spaces.AuctionSpaceSpecification
+import java.util.Random
+
+/** 
+ * @author martin
+ * 
+ */
+agent Auctioneer {
+	uses Logging
+	uses Lifecycle
+	uses SessionManagement
+	uses DefaultContextInteractions
+	uses Behaviors
+	
+	var product 	    : Product
+	var initialBidValue : double
+	var eventSpace   	: OpenEventSpace
+	var auctionSpace 	: AuctionSpace
+	
+	on Initialize {
+		// Event trigger before the agent begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("Auctioneer agent was started.")
+		
+		this.productExtraction(occurrence.parameters)
+		this.openEventSpaceSetup()
+		this.initialValueSetup()
+		this.auctionSpaceSetup()
+		this.skillSetup()
+		this.behaviorsSetup()
+		this.spawnParticipants()
+		startAuction(eventSpace,product,randomInitialOffer)
+	}
+
+	on Destroy {
+		// Event trigger when the agent is destroyed from the system.
+		// You should put all the resource releasing statements in this block of code.
+		info("The agent was stopped.")
+	}
+	
+	private def productExtraction (parameters:Object[]) {
+		val product = parameters.get(0) as Product
+		this.product = product;
+	}
+	
+	private def openEventSpaceSetup() {
+		
+		this.eventSpace = defaultContext.createSpace(
+			typeof(OpenEventSpaceSpecification),
+			this.ID
+		)
+
+		this.eventSpace.register(asEventListener)
+	}
+	
+	private def initialValueSetup() {
+		this.initialBidValue = this.randomInitialOffer()
+	}
+	
+	private def auctionSpaceSetup() {
+		val uid = UUID.randomUUID
+		this.auctionSpace = defaultContext.createSpace(AuctionSpaceSpecification, uid)
+		this.auctionSpace.configureAuction(this.ID,product,initialBidValue,eventSpace)
+		
+	}
+
+	private def skillSetup() {
+		
+		val sessionManSkill = new SessionManagementSkill()
+		this.setSkill(sessionManSkill,SessionManagement)
+	}
+	
+	private def behaviorsSetup() {
+		
+		val receiverBehavior = new BidReceiverBehaviour(this)
+		receiverBehavior.configure(this.auctionSpace)
+		registerBehavior(receiverBehavior)  
+	}
+	
+	private def spawnParticipants() {
+		spawn(5, Participant, eventSpace)
+	}
+
+	private def randomInitialOffer() : double {
+		var random : Random = new Random()
+
+		return random.nextLong() % 2000
+
+	}
+}

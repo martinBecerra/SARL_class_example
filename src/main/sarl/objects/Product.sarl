@@ -1,0 +1,12 @@
+
+package objects
+
+class Product {
+	private var id:long
+	public  var name:String
+	
+	new (prodId:long,name:String) {
+		this.id = prodId
+		this.name = name
+	}
+}

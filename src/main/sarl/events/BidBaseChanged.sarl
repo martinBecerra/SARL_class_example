@@ -1,0 +1,16 @@
+/** 
+ * 
+ */
+package events
+/** 
+ * @author martin
+ * 
+ */
+event BidBaseChanged {
+	
+	var value : double
+	
+	new (value : double) {
+		this.value = value
+	}
+}

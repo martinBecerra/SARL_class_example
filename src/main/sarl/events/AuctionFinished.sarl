@@ -1,0 +1,16 @@
+/** 
+ * 
+ */
+package events
+
+import objects.Product
+
+/** 
+ * @author martin
+ * 
+ */
+event AuctionFinished {
+	new () {
+		
+	}
+}

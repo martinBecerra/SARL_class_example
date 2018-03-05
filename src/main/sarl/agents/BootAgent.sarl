@@ -1,0 +1,23 @@
+/** 
+ * 
+ */
+package agents
+
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import objects.Product
+
+/** 
+ * @author martin
+ * 
+ */
+
+agent BootAgent {
+	uses Lifecycle
+	
+	on Initialize {
+		val product = new Product(1,"Entradas cine")
+		spawn(Auctioneer, product)
+		killMe;
+	}
+}

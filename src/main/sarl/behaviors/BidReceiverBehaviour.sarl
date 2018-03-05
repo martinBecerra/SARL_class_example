@@ -1,0 +1,63 @@
+/** 
+ * 
+ */
+package behaviors
+
+import events.Bid
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import spaces.AuctionSpace
+import events.StartAuction
+import events.AuctionFinished
+import events.BidBaseChanged
+import events.AuctionWinner
+import io.sarl.core.Lifecycle
+
+/** 
+ * @author martin
+ * 
+ */
+behavior BidReceiverBehaviour {
+	uses Logging
+	uses Lifecycle
+	
+	var auctionSpace    : AuctionSpace
+	var isAuctionOpened : boolean
+	
+	on Initialize {
+		
+	}
+
+	on StartAuction {
+		this.isAuctionOpened = true
+	} 
+	
+	on Bid [isAuctionOpened == true] {
+		val agentId  = occurrence.source.UUID
+		val bidValue = occurrence.value
+		this.auctionSpace.verifyBid(agentId, bidValue)
+	}
+	
+	on BidBaseChanged { // logging purposes
+		val baseValue = occurrence.value
+		info("Base Bid changed to " + baseValue)
+	}
+
+	on AuctionFinished {
+		this.isAuctionOpened = false
+		this.auctionSpace.closeAuction()
+	}
+
+	on AuctionWinner {
+		killMe
+	}
+	
+	on Destroy {
+		
+	}
+	
+	public def configure(auctionSpace : AuctionSpace) {
+		this.auctionSpace = auctionSpace 
+	}
+}

@@ -1,0 +1,50 @@
+package agents
+/** 
+ * 
+ */
+
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import io.sarl.core.Destroy
+import io.sarl.core.Behaviors
+import behaviors.NormalBidderBehavior
+import io.sarl.util.OpenEventSpace
+
+/** 
+ * @author martin
+ * 
+ */
+agent Participant {
+	uses Logging
+	uses Behaviors
+	
+	var eventSpace: OpenEventSpace
+	
+	on Initialize {
+		// Event trigger before the agent begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("Participant agent was started.")
+		this.eventSpaceExtraction(occurrence.parameters)
+		this.behaviorsSetup()
+		
+	}
+
+	on Destroy {
+		// Event trigger when the agent is destroyed from the system.
+		// You should put all the resource releasing statements in this block of code.
+		info("The agent was stopped.")
+	}
+	
+	private def eventSpaceExtraction(parameters : Object[]) {
+		this.eventSpace = parameters.get(0) as OpenEventSpace
+		this.eventSpace.register(asEventListener)
+	}
+	private def behaviorsSetup() {
+		
+		val bidderBeh = new NormalBidderBehavior(this)
+		bidderBeh.configure(this.eventSpace)
+		
+		registerBehavior(bidderBeh)
+	}
+	
+}

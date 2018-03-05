@@ -1,0 +1,59 @@
+/** 
+ * 
+ */
+package skills
+
+import io.sarl.util.OpenEventSpace
+import objects.Product
+import events.StartAuction
+import java.util.Random
+import io.sarl.core.Schedules
+import events.AuctionFinished
+
+/** 
+ * @author martin
+ * 
+ */
+capacity SessionManagement {
+	def startAuction(^space : OpenEventSpace, product : Product, randomOffer : double)
+	def stopAuction()
+}
+
+skill SessionManagementSkill implements SessionManagement {
+	uses Schedules
+	
+	var ^space 		    : OpenEventSpace
+ 	var product         : Product
+	
+	 
+	def startAuction(^space : OpenEventSpace, product : Product, randomOffer : double) {
+		
+		this.^space = ^space
+		this.product = product
+		
+		val startEvent  = new StartAuction(product,randomOffer)
+		
+		this.^space.emit(this.ID, startEvent)
+		this.taskFinishAuctionSetup()
+	}
+	
+	def stopAuction {
+		val finishEvent = new AuctionFinished()
+		this.^space.emit(this.ID, finishEvent)
+	}
+	
+	private def taskFinishAuctionSetup() {
+		
+		in(10000) [
+			val waitTask = task("wait-to-finish-auction")
+			
+			waitTask.every(10000) [
+
+				synchronized (this) {
+					this.stopAuction
+					waitTask.cancel;
+				}
+			]
+		]
+	}
+}

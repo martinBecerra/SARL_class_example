@@ -1,0 +1,73 @@
+package spaces
+
+import io.sarl.lang.core.Space
+import io.sarl.lang.core.SpaceID
+import io.sarl.lang.core.SpaceSpecification
+import io.sarl.lang.util.SynchronizedSet
+import io.sarl.util.OpenEventSpace
+import java.util.UUID
+import objects.Product
+import events.BidBaseChanged
+import events.AuctionWinner
+
+class AuctionSpace implements Space {
+
+	var id 		     : SpaceID
+	var product      : Product
+	var eventSpace   : OpenEventSpace
+	var bidBase      : double
+	var auctioneerId : UUID   
+	var bidderId     : UUID
+
+	new (id : SpaceID) {
+		this.id = id
+	}
+	
+	def getID : SpaceID {
+		return id
+	}
+	
+	def getParticipants : SynchronizedSet<UUID> {
+		return null
+	}
+	
+	def getSpaceID : SpaceID {
+		return id;
+	}
+
+	def configureAuction(auctioneerId : UUID, product : Product, initialBid : double, eventSpace : OpenEventSpace) {
+		this.auctioneerId = auctioneerId
+		this.product     = product
+		this.eventSpace  = eventSpace
+		this.bidBase     = initialBid
+	}
+	
+	synchronized def verifyBid(bidderId: UUID, value : double) {
+		
+		if (value > this.bidBase) {
+			this.bidBase 	 = value
+			val bidBaseEvent = new BidBaseChanged(value)
+			this.bidderId    = bidderId
+			
+			this.eventSpace.emit(this.auctioneerId, bidBaseEvent); 
+		}
+	}
+
+	synchronized def closeAuction() {
+		
+		if (bidderId !== null) {
+			val winnerEvent = new AuctionWinner(product, bidderId.toString)
+			this.eventSpace.emit(this.auctioneerId, winnerEvent)
+		}else {
+			val winnerEvent = new AuctionWinner(product, "No winner")
+			this.eventSpace.emit(this.auctioneerId, winnerEvent)
+		}
+	} 
+}
+
+class AuctionSpaceSpecification implements SpaceSpecification<AuctionSpace> {
+	
+	def create(id : SpaceID, params : Object*) : AuctionSpace {
+		return new AuctionSpace(id)
+	}
+}

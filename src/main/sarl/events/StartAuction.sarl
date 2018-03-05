@@ -1,0 +1,21 @@
+package events
+
+import objects.Product
+
+/** 
+ * 
+ */
+/** 
+ * @author martin
+ * 
+ */
+event StartAuction {
+	
+	var prod       : Product
+	var initialBid : double
+	
+	new(prod: Product, initialBid: double) {
+		this.prod 		= prod
+		this.initialBid = initialBid 
+	}
+}

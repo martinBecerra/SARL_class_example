@@ -13,6 +13,7 @@ import events.Bid
 import events.StartAuction
 import events.AuctionWinner
 import io.sarl.core.Lifecycle
+import events.AuctionFinished
 
 /** 
  * @author martin
@@ -21,6 +22,8 @@ import io.sarl.core.Lifecycle
 behavior NormalBidderBehavior {
 	uses Logging
 	uses Lifecycle
+	
+	var isAuctionOpened:boolean
 	
 	var eventSpace : OpenEventSpace
 	
@@ -37,26 +40,38 @@ behavior NormalBidderBehavior {
 	}
 
 	on StartAuction {
-		val bidBase = occurrence.initialBid
-		this.performBidOffer(bidBase)
+		
+		synchronized (this) {
+			this.isAuctionOpened = true
+			val bidBase = occurrence.initialBid
+			this.performBidOffer(bidBase)
+		}
 	}
-	
-	on BidBaseChanged {
-		val bidBase = occurrence.value;
-		this.performBidOffer(bidBase)
+	on AuctionFinished {
+		synchronized (this) {
+			this.isAuctionOpened = false
+		}
+		
+	}
+	on BidBaseChanged [this.isAuctionOpened == true] {
+		synchronized (this) {
+			val bidBase = occurrence.value;
+			this.performBidOffer(bidBase)
+		}
 	}
 	
 	on AuctionWinner {
 		
-		val myIdStr   = this.ID.toString
-		val winnerStr = occurrence.winnerName
-		val prize     = occurrence.prod
-		
-		if (myIdStr.equals(winnerStr)) {
-			info("I won " + prize.name)
+		synchronized (this) {
+			val myIdStr = this.ID.toString
+			val winnerStr = occurrence.winnerName
+			val prize = occurrence.prod
+
+			if (myIdStr.equals(winnerStr)) {
+				info("I won " + prize.name)
+			}
 		}
-		
-		killMe
+	
 	}
 	
 	def configure(eventSpace:OpenEventSpace) {

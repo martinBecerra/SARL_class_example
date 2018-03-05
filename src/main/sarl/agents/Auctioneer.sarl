@@ -12,13 +12,15 @@ import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import java.util.Random
 import java.util.UUID
 import objects.Product
 import skills.SessionManagement
 import skills.SessionManagementSkill
 import spaces.AuctionSpace
 import spaces.AuctionSpaceSpecification
-import java.util.Random
+import io.sarl.core.InnerContextAccess
+import io.sarl.core.AgentKilled
 
 /** 
  * @author martin
@@ -29,6 +31,7 @@ agent Auctioneer {
 	uses Lifecycle
 	uses SessionManagement
 	uses DefaultContextInteractions
+	uses InnerContextAccess
 	uses Behaviors
 	
 	var product 	    : Product
@@ -51,6 +54,14 @@ agent Auctioneer {
 		startAuction(eventSpace,product,randomInitialOffer)
 	}
 
+	on AgentKilled{
+		
+		synchronized (this) {
+			if (hasMemberAgent == false) {
+				killMe
+			}
+		}
+	}
 	on Destroy {
 		// Event trigger when the agent is destroyed from the system.
 		// You should put all the resource releasing statements in this block of code.
@@ -97,13 +108,17 @@ agent Auctioneer {
 	}
 	
 	private def spawnParticipants() {
-		spawn(5, Participant, eventSpace)
+		
+		 for (var i : int = 0; i < 6; i++) {
+			spawnInContext(Participant, innerContext, eventSpace)
+		 }
 	}
 
 	private def randomInitialOffer() : double {
 		var random : Random = new Random()
-
-		return random.nextLong() % 2000
-
+		val absRand = Math.abs(random.nextLong())
+		
+		return absRand % 2000
 	}
+
 }

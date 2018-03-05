@@ -37,12 +37,13 @@ class AuctionSpace implements Space {
 
 	def configureAuction(auctioneerId : UUID, product : Product, initialBid : double, eventSpace : OpenEventSpace) {
 		this.auctioneerId = auctioneerId
-		this.product     = product
-		this.eventSpace  = eventSpace
-		this.bidBase     = initialBid
+		this.product      = product
+		this.eventSpace   = eventSpace
+		this.bidBase      = initialBid
 	}
 	
 	synchronized def verifyBid(bidderId: UUID, value : double) {
+		
 		
 		if (value > this.bidBase) {
 			this.bidBase 	 = value
@@ -58,9 +59,12 @@ class AuctionSpace implements Space {
 		if (bidderId !== null) {
 			val winnerEvent = new AuctionWinner(product, bidderId.toString)
 			this.eventSpace.emit(this.auctioneerId, winnerEvent)
+			println("The agent " + bidderId.toString + " won " + product.name)
+			
 		}else {
 			val winnerEvent = new AuctionWinner(product, "No winner")
 			this.eventSpace.emit(this.auctioneerId, winnerEvent)
+			println("No winner")
 		}
 	} 
 }

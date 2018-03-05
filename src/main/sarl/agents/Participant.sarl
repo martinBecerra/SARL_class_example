@@ -3,12 +3,14 @@ package agents
  * 
  */
 
+import behaviors.NormalBidderBehavior
+import io.sarl.core.Behaviors
+import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import io.sarl.core.Logging
-import io.sarl.core.Destroy
-import io.sarl.core.Behaviors
-import behaviors.NormalBidderBehavior
 import io.sarl.util.OpenEventSpace
+import events.AuctionWinner
+import io.sarl.core.Lifecycle
 
 /** 
  * @author martin
@@ -17,6 +19,7 @@ import io.sarl.util.OpenEventSpace
 agent Participant {
 	uses Logging
 	uses Behaviors
+	uses Lifecycle
 	
 	var eventSpace: OpenEventSpace
 	
@@ -39,6 +42,7 @@ agent Participant {
 		this.eventSpace = parameters.get(0) as OpenEventSpace
 		this.eventSpace.register(asEventListener)
 	}
+	
 	private def behaviorsSetup() {
 		
 		val bidderBeh = new NormalBidderBehavior(this)
@@ -46,5 +50,8 @@ agent Participant {
 		
 		registerBehavior(bidderBeh)
 	}
-	
+
+	on AuctionWinner {
+		killMe
+	}
 }

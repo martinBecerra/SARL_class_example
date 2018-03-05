@@ -3,12 +3,12 @@
  */
 package skills
 
+import events.AuctionFinished
+import events.StartAuction
+import io.sarl.core.Logging
+import io.sarl.core.Schedules
 import io.sarl.util.OpenEventSpace
 import objects.Product
-import events.StartAuction
-import java.util.Random
-import io.sarl.core.Schedules
-import events.AuctionFinished
 
 /** 
  * @author martin
@@ -21,6 +21,7 @@ capacity SessionManagement {
 
 skill SessionManagementSkill implements SessionManagement {
 	uses Schedules
+	uses Logging
 	
 	var ^space 		    : OpenEventSpace
  	var product         : Product
@@ -34,26 +35,23 @@ skill SessionManagementSkill implements SessionManagement {
 		val startEvent  = new StartAuction(product,randomOffer)
 		
 		this.^space.emit(this.ID, startEvent)
+		println("Auction started - Base bid Offer: "+ randomOffer)
 		this.taskFinishAuctionSetup()
 	}
 	
 	def stopAuction {
 		val finishEvent = new AuctionFinished()
 		this.^space.emit(this.ID, finishEvent)
+		info("Auction finished")
 	}
 	
 	private def taskFinishAuctionSetup() {
-		
-		in(10000) [
-			val waitTask = task("wait-to-finish-auction")
-			
-			waitTask.every(10000) [
 
-				synchronized (this) {
-					this.stopAuction
-					waitTask.cancel;
-				}
-			]
+		val task = task("close_auction_task")
+		task.in(1000) [
+			this.stopAuction
+			info("Task fired")
 		]
+		
 	}
 }

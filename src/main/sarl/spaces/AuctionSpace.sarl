@@ -1,15 +1,14 @@
 package spaces
 
+import events.AuctionWinner
+import events.BidBaseChanged
+import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedSet
-import io.sarl.util.OpenEventSpace
 import java.util.UUID
 import objects.Product
-import events.BidBaseChanged
-import events.AuctionWinner
-import io.sarl.lang.core.EventSpace
 
 class AuctionSpace implements Space {
 

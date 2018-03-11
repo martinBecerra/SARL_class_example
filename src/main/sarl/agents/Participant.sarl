@@ -4,13 +4,12 @@ package agents
  */
 
 import behaviors.NormalBidderBehavior
+import events.AuctionWinner
 import io.sarl.core.Behaviors
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
-import io.sarl.core.Logging
-import io.sarl.util.OpenEventSpace
-import events.AuctionWinner
 import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
 
 /** 
  * @author martin

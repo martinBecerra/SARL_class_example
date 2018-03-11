@@ -18,6 +18,7 @@ agent BootAgent {
 	on Initialize {
 		val product = new Product(1,"Entradas cine")
 		spawn(Auctioneer, product)
+		
 		killMe;
 	}
 }

@@ -4,14 +4,14 @@ package agents
  */
 
 import behaviors.BidReceiverBehaviour
+import io.sarl.core.AgentKilled
 import io.sarl.core.Behaviors
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
+import io.sarl.core.InnerContextAccess
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import java.util.Random
 import java.util.UUID
 import objects.Product
@@ -19,8 +19,6 @@ import skills.SessionManagement
 import skills.SessionManagementSkill
 import spaces.AuctionSpace
 import spaces.AuctionSpaceSpecification
-import io.sarl.core.InnerContextAccess
-import io.sarl.core.AgentKilled
 
 /** 
  * @author martin
@@ -36,7 +34,6 @@ agent Auctioneer {
 	
 	var product 	    : Product
 	var initialBidValue : double
-	var eventSpace   	: OpenEventSpace
 	var auctionSpace 	: AuctionSpace
 	
 	on Initialize {
@@ -45,13 +42,12 @@ agent Auctioneer {
 		info("Auctioneer agent was started.")
 		
 		this.productExtraction(occurrence.parameters)
-		this.openEventSpaceSetup()
 		this.initialValueSetup()
 		this.auctionSpaceSetup()
 		this.skillSetup()
 		this.behaviorsSetup()
 		this.spawnParticipants()
-		startAuction(eventSpace,product,randomInitialOffer)
+		startAuction(product,randomInitialOffer)
 	}
 
 	on AgentKilled{
@@ -73,16 +69,6 @@ agent Auctioneer {
 		this.product = product;
 	}
 	
-	private def openEventSpaceSetup() {
-		
-		this.eventSpace = defaultContext.createSpace(
-			typeof(OpenEventSpaceSpecification),
-			this.ID
-		)
-
-		this.eventSpace.register(asEventListener)
-	}
-	
 	private def initialValueSetup() {
 		this.initialBidValue = this.randomInitialOffer()
 	}
@@ -90,8 +76,9 @@ agent Auctioneer {
 	private def auctionSpaceSetup() {
 		val uid = UUID.randomUUID
 		this.auctionSpace = defaultContext.createSpace(AuctionSpaceSpecification, uid)
-		this.auctionSpace.configureAuction(this.ID,product,initialBidValue,eventSpace)
+		val eventSpace = innerContext.defaultSpace
 		
+		this.auctionSpace.configureAuction(this.ID, product, initialBidValue, eventSpace)
 	}
 
 	private def skillSetup() {
@@ -110,7 +97,7 @@ agent Auctioneer {
 	private def spawnParticipants() {
 		
 		 for (var i : int = 0; i < 6; i++) {
-			spawnInContext(Participant, innerContext, eventSpace)
+			spawnInContext(Participant, innerContext)
 		 }
 	}
 

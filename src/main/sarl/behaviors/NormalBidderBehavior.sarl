@@ -14,6 +14,7 @@ import events.StartAuction
 import events.AuctionWinner
 import io.sarl.core.Lifecycle
 import events.AuctionFinished
+import io.sarl.core.DefaultContextInteractions
 
 /** 
  * @author martin
@@ -22,10 +23,9 @@ import events.AuctionFinished
 behavior NormalBidderBehavior {
 	uses Logging
 	uses Lifecycle
+	uses DefaultContextInteractions
 	
 	var isAuctionOpened:boolean
-	
-	var eventSpace : OpenEventSpace
 	
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -71,10 +71,6 @@ behavior NormalBidderBehavior {
 		}
 	}
 	
-	def configure(eventSpace:OpenEventSpace) {
-		this.eventSpace = eventSpace
-	}
-	
 	private def performBidOffer(bidBase : double) {
 		
 		var maxPercentOffer = bidBase * 0.2
@@ -83,7 +79,8 @@ behavior NormalBidderBehavior {
 		val bidOffer = bidBase + randomOffer
 
 		val bidOfferEvent = new Bid(bidOffer);
-		this.eventSpace.emit(this.ID, bidOfferEvent)
+		
+		defaultSpace.emit(this.ID, bidOfferEvent)
 		
 		info("agent " + this.ID + " makes an offer of " + bidOffer)
 	}

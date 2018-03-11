@@ -9,39 +9,48 @@ import io.sarl.core.Logging
 import io.sarl.core.Schedules
 import io.sarl.util.OpenEventSpace
 import objects.Product
+import io.sarl.core.InnerContextAccess
+import io.sarl.lang.core.EventSpace
 
 /** 
  * @author martin
  * 
  */
 capacity SessionManagement {
-	def startAuction(^space : OpenEventSpace, product : Product, randomOffer : double)
+	def startAuction(product : Product, randomOffer : double)
 	def stopAuction()
 }
 
 skill SessionManagementSkill implements SessionManagement {
 	uses Schedules
 	uses Logging
+	uses InnerContextAccess
 	
-	var ^space 		    : OpenEventSpace
- 	var product         : Product
-	
+ 	var product    : Product
+	var eventSpace : EventSpace
 	 
-	def startAuction(^space : OpenEventSpace, product : Product, randomOffer : double) {
+	new () {
 		
-		this.^space = ^space
+	}
+	
+	def startAuction(product : Product, randomOffer : double) {
+
+		this.eventSpace = innerContext.defaultSpace
+		
 		this.product = product
 		
 		val startEvent  = new StartAuction(product,randomOffer)
 		
-		this.^space.emit(this.ID, startEvent)
-		println("Auction started - Base bid Offer: "+ randomOffer)
+		this.eventSpace.emit(this.ID, startEvent)
+		
+		info("Auction started - Base bid Offer: "+ randomOffer)
+		
 		this.taskFinishAuctionSetup()
 	}
 	
 	def stopAuction {
 		val finishEvent = new AuctionFinished()
-		this.^space.emit(this.ID, finishEvent)
+		this.eventSpace.emit(this.ID, finishEvent)
 		info("Auction finished")
 	}
 	

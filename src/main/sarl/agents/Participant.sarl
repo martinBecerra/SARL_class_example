@@ -21,13 +21,10 @@ agent Participant {
 	uses Behaviors
 	uses Lifecycle
 	
-	var eventSpace: OpenEventSpace
-	
 	on Initialize {
 		// Event trigger before the agent begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
 		info("Participant agent was started.")
-		this.eventSpaceExtraction(occurrence.parameters)
 		this.behaviorsSetup()
 		
 	}
@@ -38,16 +35,10 @@ agent Participant {
 		info("The agent was stopped.")
 	}
 	
-	private def eventSpaceExtraction(parameters : Object[]) {
-		this.eventSpace = parameters.get(0) as OpenEventSpace
-		this.eventSpace.register(asEventListener)
-	}
 	
 	private def behaviorsSetup() {
 		
 		val bidderBeh = new NormalBidderBehavior(this)
-		bidderBeh.configure(this.eventSpace)
-		
 		registerBehavior(bidderBeh)
 	}
 

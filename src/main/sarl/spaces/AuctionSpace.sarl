@@ -9,12 +9,13 @@ import java.util.UUID
 import objects.Product
 import events.BidBaseChanged
 import events.AuctionWinner
+import io.sarl.lang.core.EventSpace
 
 class AuctionSpace implements Space {
 
 	var id 		     : SpaceID
 	var product      : Product
-	var eventSpace   : OpenEventSpace
+	var eventSpace   : EventSpace
 	var bidBase      : double
 	var auctioneerId : UUID   
 	var bidderId     : UUID
@@ -35,7 +36,7 @@ class AuctionSpace implements Space {
 		return id;
 	}
 
-	def configureAuction(auctioneerId : UUID, product : Product, initialBid : double, eventSpace : OpenEventSpace) {
+	def configureAuction(auctioneerId : UUID, product : Product, initialBid : double, eventSpace : EventSpace) {
 		this.auctioneerId = auctioneerId
 		this.product      = product
 		this.eventSpace   = eventSpace

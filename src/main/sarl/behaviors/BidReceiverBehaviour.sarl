@@ -23,7 +23,7 @@ behavior BidReceiverBehaviour {
 	var isAuctionOpened : boolean
 	
 	on Initialize {
-		isAuctionOpened = true
+		isAuctionOpened = false
 	}
 
 	on StartAuction {

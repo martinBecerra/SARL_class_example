@@ -16,7 +16,7 @@ agent BootAgent {
 	uses Lifecycle
 	
 	on Initialize {
-		val product = new Product(1,"Entradas cine")
+		val product = new Product(1,"Cinema tickets")
 		spawn(Auctioneer, product)
 		
 		killMe;

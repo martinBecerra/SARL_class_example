@@ -64,7 +64,7 @@ behavior BidReceiverBehaviour {
 		
 	}
 	
-	public def configure(auctionSpace : AuctionSpace) {
+	synchronized public def configure(auctionSpace : AuctionSpace) {
 		this.auctionSpace = auctionSpace 
 	}
 }

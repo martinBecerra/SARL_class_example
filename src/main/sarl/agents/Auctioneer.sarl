@@ -63,22 +63,22 @@ agent Auctioneer {
 		// You should put all the resource releasing statements in this block of code.
 		info("The agent was stopped.")
 	}
-	
-	private def productExtraction (parameters:Object[]) {
+
+	synchronized private def productExtraction(parameters : Object[]) {
 		val product = parameters.get(0) as Product
 		this.product = product;
 	}
-	
-	private def initialValueSetup() {
-		this.initialBidValue = this.randomInitialOffer()
+
+	synchronized private def initialValueSetup() {
+		
+			this.initialBidValue = this.randomInitialOffer()	
 	}
-	
-	private def auctionSpaceSetup() {
+
+	synchronized private def auctionSpaceSetup() {
 		val uid = UUID.randomUUID
 		this.auctionSpace = defaultContext.createSpace(AuctionSpaceSpecification, uid)
 		val eventSpace = innerContext.defaultSpace
-		
-		this.auctionSpace.configureAuction(this.ID, product, initialBidValue, eventSpace)
+		this.auctionSpace.configureAuction(this.ID, product, initialBidValue, eventSpace)	
 	}
 
 	private def skillSetup() {
@@ -86,12 +86,11 @@ agent Auctioneer {
 		val sessionManSkill = new SessionManagementSkill()
 		this.setSkill(sessionManSkill,SessionManagement)
 	}
-	
-	private def behaviorsSetup() {
-		
+
+	synchronized private def behaviorsSetup() {
 		val receiverBehavior = new BidReceiverBehaviour(this)
 		receiverBehavior.configure(this.auctionSpace)
-		registerBehavior(receiverBehavior)  
+		registerBehavior(receiverBehavior)	
 	}
 	
 	private def spawnParticipants() {

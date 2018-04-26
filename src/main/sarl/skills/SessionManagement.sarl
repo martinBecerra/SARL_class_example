@@ -33,7 +33,7 @@ skill SessionManagementSkill implements SessionManagement {
 		
 	}
 	
-	def startAuction(product : Product, randomOffer : double) {
+	synchronized def startAuction(product : Product, randomOffer : double) {
 
 		this.eventSpace = innerContext.defaultSpace
 		
@@ -48,7 +48,7 @@ skill SessionManagementSkill implements SessionManagement {
 		this.taskFinishAuctionSetup()
 	}
 	
-	def stopAuction {
+	synchronized def stopAuction {
 		val finishEvent = new AuctionFinished()
 		this.eventSpace.emit(this.ID, finishEvent)
 		info("Auction finished")
